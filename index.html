@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crypto Dashboard</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f4f4f4; }
+    header { background: #222; color: #fff; padding: 1rem; text-align: center; }
+    section { padding: 1rem; margin: 1rem; background: #fff; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    iframe { width: 100%; height: 500px; border: none; }
+    h2 { margin-top: 0; }
+    ul { padding-left: 1.2rem; }
+    li { margin-bottom: 0.5rem; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { padding: 0.5rem; border: 1px solid #ccc; }
+    th { background: #eee; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Crypto Dashboard</h1>
+</header>
+
+<!-- BTC Chart -->
+<section>
+  <h2>BTC Price Chart</h2>
+  <iframe src="https://s.tradingview.com/widgetembed/?symbol=BINANCE:BTCUSDT&interval=D&theme=dark" allowtransparency="true"></iframe>
+</section>
+
+<!-- Crypto News -->
+<section>
+  <h2>Crypto News</h2>
+  <ul id="crypto-news">Loading news...</ul>
+</section>
+
+<!-- ETF Flows -->
+<section>
+  <h2>ETF Flows</h2>
+  <table id="etf-flows">
+    <tr><th>ETF</th><th>Inflow</th><th>Outflow</th></tr>
+    <tr><td colspan="3">Loading ETF flows...</td></tr>
+  </table>
+</section>
+
+<!-- Whale Flows -->
+<section>
+  <h2>Whale Flows</h2>
+  <iframe src="https://yourwhaleflowswidget.com"></iframe>
+</section>
+
+<!-- Macro Calendar -->
+<section>
+  <h2>Macro Calendar</h2>
+  <iframe src="https://yourmacrocalendarwidget.com"></iframe>
+</section>
+
+<script>
+  // ==== Crypto News via RSS2JSON ====
+  fetch('https://api.rss2json.com/v1/api.json?rss_url=https://cryptopanic.com/news/feed/')
+    .then(response => response.json())
+    .then(data => {
+      const ul = document.getElementById('crypto-news');
+      ul.innerHTML = ''; // clear loading text
+      data.items.slice(0, 5).forEach(item => {
+        const li = document.createElement('li');
+        li.innerHTML = `<a href="${item.link}" target="_blank">${item.title}</a>`;
+        ul.appendChild(li);
+      });
+    })
+    .catch(err => {
+      document.getElementById('crypto-news').innerHTML = 'Failed to load news.';
+      console.error(err);
+    });
+
+  // ==== ETF Flows via Coinglass API ====
+  // Note: replace 'YOUR_API_KEY' with a valid free Coinglass API key
+  fetch('https://api.coinglass.com/api/pro/v1/etf?apiKey=YOUR_API_KEY')
+    .then(res => res.json())
+    .then(data => {
+      const table = document.getElementById('etf-flows');
+      table.innerHTML = '<tr><th>ETF</th><th>Inflow</th><th>Outflow</th></tr>'; // clear loading row
+      data.forEach(item => {
+        const row = table.insertRow();
+        row.insertCell(0).innerText = item.etfName;
+        row.insertCell(1).innerText = item.inflow;
+        row.insertCell(2).innerText = item.outflow;
+      });
+    })
+    .catch(err => {
+      const table = document.getElementById('etf-flows');
+      table.innerHTML = '<tr><td colspan="3">Failed to load ETF flows.</td></tr>';
+      console.error(err);
+    });
+</script>
+
+</body>
+</html>
